@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+
+  <!-- SEO Meta Tags -->
+  <title>Voice to Text – Free Online Speech to Text Tool</title>
+  <meta name="description" content="Free online voice-to-text tool using the Web Speech API. Convert speech to text in real time directly in your browser. No downloads required, audio stays local." />
+  <meta name="keywords" content="voice to text, speech to text, web speech api, dictation tool, online transcription, speech recognition, browser voice typing, convert audio to text" />
+  <meta name="author" content="Voice to Text App" />
+  <meta name="robots" content="index, follow" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Voice to Text – Free Browser Speech‑to‑Text Tool" />
+  <meta property="og:description" content="Real‑time voice recognition using your browser. Fast, accurate, and private." />
+  <meta property="og:type" content="website" />
+
+  
+
+  <!-- Twitter Cards -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Voice to Text – Free Online Speech‑to‑Text Tool" />
+  <meta name="twitter:description" content="Convert voice to text directly in your browser using the Web Speech API." />
+ 
+
+  <!-- Canonical URL -->
+
+
+  <!-- CSS + Accessibility Improvements -->
+  <style>
+    :root{--bg:#f7fafc;--card:#fff;--muted:#6b7280;--accent:#0ea5a4}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial;background:var(--bg);color:#111;line-height:1.6}
+    .wrap{max-width:980px;margin:40px auto;padding:20px}
+    .card{background:var(--card);border-radius:12px;padding:20px;box-shadow:0 6px 18px rgba(16,24,40,0.06)}
+    header{display:flex;justify-content:space-between;align-items:center;gap:16px}
+    h1{margin:0;font-size:24px}
+    p.lead{margin:4px 0 0;color:var(--muted);font-size:14px}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:16px;flex-wrap:wrap}
+    button{padding:10px 14px;border-radius:10px;border:0;cursor:pointer;font-weight:600}
+    .btn-start{background:linear-gradient(90deg,#10b981,#06b6d4);color:#fff}
+    .btn-stop{background:#ef4444;color:#fff}
+    .btn-plain{background:#f3f4f6;border:1px solid #e5e7eb}
+    select,input[type=checkbox]{padding:8px;border-radius:8px;border:1px solid #e5e7eb}
+    .grid{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:18px}
+    .transcript{min-height:220px;border-radius:10px;padding:14px;background:#f8fafc;border:1px solid #e6eef0;white-space:pre-wrap;overflow:auto}
+    .sidebar textarea{width:100%;min-height:180px;padding:12px;border-radius:10px;border:1px solid #e5e7eb}
+    .muted{color:var(--muted);font-size:13px}
+    footer{margin-top:18px;font-size:12px;color:var(--muted);display:flex;justify-content:space-between}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;font-size:13px;background:#eef2f2}
+    .error{background:#fff1f2;border-left:4px solid #fca5a5;padding:10px;border-radius:8px;color:#b91c1c}
+    .success{background:#ecfdf5;border-left:4px solid #34d399;padding:10px;border-radius:8px;color:#065f46}
+    @media (max-width:800px){.grid{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div>
+          <h1>Voice to Text – Free Online Speech to Text Tool</h1>
+          <p class="lead">Live voice recognition using the Web Speech API — everything runs locally in your browser for maximum privacy.</p>
+        </div>
+        <div class="status">
+          <span id="status" class="pill">Idle</span>
+        </div>
+      </header>
+
+      <div style="margin-top:12px" id="messageArea"></div>
+
+      <div class="controls">
+        <button id="toggle" class="btn-start">Start</button>
+        <button id="clear" class="btn-plain">Clear</button>
+        <button id="download" class="btn-plain">Download</button>
+        <label style="display:flex;align-items:center;gap:8px;margin-left:8px">
+          Language
+          <select id="lang">
+            <option value="en-US">English (US)</option>
+            <option value="en-GB">English (UK)</option>
+            <option value="es-ES">Spanish (Spain)</option>
+            <option value="fr-FR">French (France)</option>
+            <option value="de-DE">German</option>
+            <option value="zh-CN">Chinese (Mandarin)</option>
+            <option value="ja-JP">Japanese</option>
+          </select>
+        </label>
+        <label style="display:flex;align-items:center;gap:8px;margin-left:auto">
+          <input id="continuous" type="checkbox" checked /> Continuous
+        </label>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div id="transcript" class="transcript" aria-live="polite">(Transcript will appear here)</div>
+
+          <div style="margin-top:10px;display:flex;gap:8px;align-items:center">
+            <button id="copy" class="btn-plain">Copy</button>
+            <button id="edit" class="btn-plain">Edit in box</button>
+            <div class="muted">Interim results are shown in italics.</div>
+          </div>
+        </div>
+
+        <aside class="sidebar">
+          <label class="muted">Editor</label>
+          <textarea id="editor" placeholder="Edit, save or copy transcript..."></textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="editorCopy" class="btn-plain">Copy</button>
+            <button id="editorDownload" class="btn-plain">Download</button>
+            <button id="saveEditor" class="btn-start">Save to Transcript</button>
+          </div>
+        </aside>
+      </div>
+
+      <footer>
+        <div>Local browser speech recognition — best performance in Chrome / Edge.</div>
+        <div id="support" class="muted"></div>
+      </footer>
+    </div>
+  </div>
+
+  <!-- Original JavaScript kept intact -->
+   <script>
+    // Better feature detection and error handling
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+    const statusEl = document.getElementById('status');
+    const supportEl = document.getElementById('support');
+    const messageArea = document.getElementById('messageArea');
+    const toggleBtn = document.getElementById('toggle');
+    const clearBtn = document.getElementById('clear');
+    const downloadBtn = document.getElementById('download');
+    const transcriptEl = document.getElementById('transcript');
+    const copyBtn = document.getElementById('copy');
+    const editBtn = document.getElementById('edit');
+    const editor = document.getElementById('editor');
+    const editorCopy = document.getElementById('editorCopy');
+    const editorDownload = document.getElementById('editorDownload');
+    const saveEditor = document.getElementById('saveEditor');
+    const langSel = document.getElementById('lang');
+    const continuousChk = document.getElementById('continuous');
+
+    if (!SpeechRecognition) {
+      supportEl.textContent = 'Your browser does not support the Web Speech API.';
+      toggleBtn.disabled = true;
+      statusEl.textContent = 'Unsupported';
+      statusEl.style.background = '#fee2e2';
+      showMessage('error','Your browser lacks the Web Speech API. Use Chrome or Edge on desktop for best compatibility.');
+    } else {
+      supportEl.textContent = '';
+    }
+
+    let recognition = null;
+    let listening = false;
+    let interim = '';
+    let finalText = '';
+    let lastError = null;
+    let explicitStop = false;
+
+    function showMessage(type, text) {
+      if (!messageArea) return;
+      if (!text) { messageArea.innerHTML = ''; return; }
+      const cls = type === 'error' ? 'error' : 'success';
+      messageArea.innerHTML = `<div class="${cls}">${escapeHtml(text)}</div>`;
+    }
+
+    function mapError(e) {
+      if (!e) return 'Unknown error';
+      const code = e.error || e.name || (typeof e === 'string' ? e : 'unknown');
+      switch (code) {
+        case 'not-allowed':
+        case 'PermissionDeniedError':
+          return 'Microphone permission denied. Please allow microphone access and refresh the page.';
+        case 'service-not-allowed':
+          return 'Speech recognition service is disallowed by the browser or origin.';
+        case 'no-speech':
+          return 'No speech was detected. Try speaking louder or check your microphone.';
+        case 'audio-capture':
+          return 'Could not capture audio from the microphone.';
+        case 'aborted':
+          return 'Speech recognition was aborted.';
+        case 'network':
+          return 'A network error occurred (if recognition uses a remote service).';
+        default:
+          return `Recognition error: ${code}`;
+      }
+    }
+
+    function updateTranscript() {
+      if (!finalText && !interim) {
+        transcriptEl.innerHTML = '(Transcript will appear here)';
+        return;
+      }
+      const safeFinal = escapeHtml(finalText);
+      const safeInterim = escapeHtml(interim);
+      transcriptEl.innerHTML = safeFinal + (safeFinal && safeInterim ? '\n' : '') + (safeInterim ? '<i style="color:#6b7280">' + safeInterim + '</i>' : '');
+    }
+
+    function escapeHtml(s){ return String(s || '')
+      .replace(/&/g,'&amp;')
+      .replace(/</g,'&lt;')
+      .replace(/>/g,'&gt;'); }
+
+    // Ask for microphone permission explicitly before starting recognition to reduce "not-allowed" errors
+    async function ensureMicPermission() {
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return true; // can't check — assume ok
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        // Immediately stop tracks — we only requested permission, recognition uses mic separately
+        stream.getTracks().forEach(t => t.stop());
+        return true;
+      } catch (err) {
+        console.warn('getUserMedia failed', err);
+        return false;
+      }
+    }
+
+    function createRecognition() {
+      if (!SpeechRecognition) return null;
+      const rec = new SpeechRecognition();
+      rec.lang = langSel.value || 'en-US';
+      rec.interimResults = true;
+      rec.continuous = false; // we'll manage continuous mode by auto-restarting onend to avoid browser-specific bugs
+
+      rec.onstart = () => {
+        listening = true;
+        statusEl.textContent = 'Listening';
+        statusEl.style.background = '#d1fae5';
+        toggleBtn.textContent = 'Stop';
+        toggleBtn.className='btn-stop';
+        showMessage('success','Listening — speak now.');
+      };
+
+      rec.onerror = (e) => {
+        lastError = e;
+        const friendly = mapError(e);
+        console.error('Recognition error', e, friendly);
+        showMessage('error', friendly);
+        statusEl.textContent = 'Error';
+        statusEl.style.background = '#fee2e2';
+      };
+
+      rec.onend = () => {
+        listening = false;
+        statusEl.textContent = 'Idle';
+        statusEl.style.background='';
+        toggleBtn.textContent='Start';
+        toggleBtn.className='btn-start';
+
+        // If user didn't explicitly stop and continuous is checked, try to restart once after short delay
+        if (!explicitStop && continuousChk.checked && !lastError) {
+          // small delay to avoid tight restart loops
+          setTimeout(() => {
+            try {
+              // recreate recognition to avoid some browser bugs
+              recognition = createRecognition();
+              recognition.start();
+            } catch (e) {
+              console.warn('Restart failed', e);
+            }
+          }, 250);
+        }
+      };
+
+      rec.onresult = (event) => {
+        interim = '';
+        for (let i = event.resultIndex; i < event.results.length; i++){
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalText += (finalText ? ' ' : '') + transcript.trim() + '.';
+          } else {
+            interim += transcript;
+          }
+        }
+        updateTranscript();
+      };
+
+      return rec;
+    }
+
+    async function start() {
+      if (!SpeechRecognition) return;
+      explicitStop = false;
+      lastError = null;
+
+      // If already listening, do nothing
+      if (listening) return;
+
+      // ask for mic permission first to avoid immediate not-allowed errors
+      const ok = await ensureMicPermission();
+      if (!ok) {
+        showMessage('error','Microphone access denied. Please enable the microphone for this page and reload.');
+        statusEl.textContent = 'No mic permission';
+        return;
+      }
+
+      try {
+        recognition = createRecognition();
+        recognition.start();
+      } catch (e) {
+        console.error('Start failed', e);
+        showMessage('error','Could not start speech recognition: ' + (e && e.message ? e.message : e));
+      }
+    }
+
+    function stop() {
+      explicitStop = true;
+      lastError = null;
+      try { if (recognition) recognition.stop(); } catch (e) { console.warn(e); }
+      listening = false;
+      toggleBtn.textContent = 'Start';
+      toggleBtn.className='btn-start';
+      statusEl.textContent = 'Idle';
+      showMessage('success','Recognition stopped.');
+    }
+
+    toggleBtn.addEventListener('click', () => {
+      if (!SpeechRecognition) return;
+      if (listening) stop(); else start();
+    });
+
+    clearBtn.addEventListener('click', () => { interim=''; finalText=''; updateTranscript(); editor.value=''; showMessage('', ''); });
+
+    downloadBtn.addEventListener('click', () => {
+      const text = (finalText + ' ' + interim).trim();
+      if (!text) return alert('Nothing to download');
+      const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='transcript.txt'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    copyBtn.addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText((finalText + ' ' + interim).trim()); alert('Copied to clipboard'); } catch(e){ alert('Copy failed') }
+    });
+
+    editBtn.addEventListener('click', () => { editor.value = (finalText + ' ' + interim).trim(); editor.focus(); });
+
+    editorCopy.addEventListener('click', async () => { try { await navigator.clipboard.writeText(editor.value); alert('Copied editor contents'); } catch(e){ alert('Copy failed') } });
+
+    editorDownload.addEventListener('click', () => {
+      const t = editor.value || '';
+      if (!t) return alert('Editor is empty');
+      const blob = new Blob([t], {type:'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href=url; a.download='transcript-edit.txt'; a.click(); URL.revokeObjectURL(url);
+    });
+
+    saveEditor.addEventListener('click', () => { finalText = editor.value || ''; interim=''; updateTranscript(); alert('Saved to transcript'); });
+
+    // Stop recognition before unload to avoid stuck state
+    window.addEventListener('beforeunload', () => { if (recognition) try{ recognition.stop(); } catch(e){} });
+  </script>
+</body>
+</html>
